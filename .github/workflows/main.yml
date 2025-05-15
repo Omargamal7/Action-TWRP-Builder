@@ -1,0 +1,46 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    - name: Build Recovery
+      run: |
+        cd twrp
+        export ALLOW_MISSING_DEPENDENCIES=true
+        source build/envsetup.sh
+        lunch twrp_a26xs-eng
+        make -j$(nproc --all || echo 2) recoveryimage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    - name: Upload TWRP Image
+      uses: actions/upload-artifact@v4
+      with:
+        name: twrp_a26xs.img
+        path: twrp/out/target/product/a26xs/recovery.img
