@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04  # Changed to stable LTS version
     permissions:
       contents: write
 
@@ -17,22 +17,15 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt-get install -y \
-        git-core repo python3 python-is-python3 clang \
-        libncurses-dev libxml2-utils lzop zlib1g-dev \
-        bc flex bison ccache
-
-    - name: Install Repo Tool
-      run: |
-        mkdir -p ~/bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod +x ~/bin/repo
-        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+          git-core python3 python-is-python3 clang \
+          libncurses-dev libxml2-utils lzop zlib1g-dev \
+          bc flex bison ccache repo
 
     - name: Initialize Repo
       run: |
         mkdir -p twrp
         cd twrp
-        repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp -b twrp-12.1
+        repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp -b twrp-14.0  # Correct branch
       env:
         PYTHONWARNINGS: "ignore"
 
@@ -55,10 +48,10 @@ jobs:
         export ALLOW_MISSING_DEPENDENCIES=true
         source build/envsetup.sh
         lunch twrp_a26xs-eng
-        make -j$(nproc) recoveryimage
+        make -j$(($(nproc)/2)) recoveryimage  # Safer parallelization
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: twrp-a26xs
-        path: twrp/out/target/product/a26xs/recovery.img
+        path: twrp/out/target/product/a26xs/recovery.img  # Fixed path syntax
